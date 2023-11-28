@@ -1,16 +1,33 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:shinappro/firebase_options.dart';
 import './loginPage.dart';
 
-void main() {
-  runApp(const MyApp());
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform
+        /*name: "Shinappro",
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyB0PO8P2du80hp6hNKnIHxWdgcw-JeCDCM",
+          appId: "edu.handong.ASARR.shinappro",
+          messagingSenderId: "540450109795",
+          projectId: "shinappro-aadb2",
+          authDomain: "shinappro-aadb2.firebaseapp.com",
+          storageBucket: "shinappro-aadb2.appspot.com",
+        )*/);
+    runApp(const MyApp());
+  } catch (e) {
+    // ignore: avoid_print
+    print("Firebase initialization error: $e");
+  }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,7 +41,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-
+      // ignore: prefer_const_constructors
       home: LoginPage(),
     );
   }
