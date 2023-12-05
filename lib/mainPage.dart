@@ -22,6 +22,397 @@ import 'scale_10_repond_page.dart';
 import './settingPage.dart';
 import './habitPage.dart';
 
+Future<void> listSet(List<double> list, String code) async {
+  list.clear();
+  QuerySnapshot snapshots = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userUid)
+      .collection(code)
+      .get();
+
+  switch (code) {
+    case '1':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 16; i++) {
+          dataSum += (data['$i'] ?? 0) as int;
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '2':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 10; i++) {
+          if (i == 1 || i == 2 || i == 3 || i == 9 || i == 10) {
+            dataSum += (data['$i'] ?? 0) as int;
+          } else {
+            dataSum += (4 - (data['$i'] ?? 0) as int);
+          }
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '3':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 15; i++) {
+          if (i == 4 || i == 10 || i == 15) {
+            dataSum += (6 - (data['$i'] ?? 0) as int);
+          } else {
+            dataSum += (data['$i'] ?? 0) as int;
+          }
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '4':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 24; i++) {
+          if (i == 9) {
+            dataSum += (5 - (data['$i'] ?? 0) as int);
+          } else {
+            dataSum += (data['$i'] ?? 0) as int;
+          }
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+
+    case '5':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 20; i++) {
+          dataSum += (data['$i'] ?? 0) as int;
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '6':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 22; i++) {
+          dataSum += (data['$i'] ?? 0) as int;
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '7':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 15; i++) {
+          dataSum += (data['$i'] ?? 0) as int;
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '8':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 16; i++) {
+          if (i == 11) {
+            dataSum += (6 - (data['$i'] ?? 0) as int);
+          } else {
+            dataSum += (data['$i'] ?? 0) as int;
+          }
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '9':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 12; i++) {
+          dataSum += (data['$i'] ?? 0) as int;
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    case '10':
+      for (var doc in snapshots.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        double dataSum = 0;
+        for (int i = 1; i <= 10; i++) {
+          dataSum += (data['$i'] ?? 0) as int;
+        }
+        // 리스트에 dataSum 값을 추가
+        list.add(dataSum);
+      }
+    default:
+      return;
+  }
+}
+
+// 표준화 회귀계수를 계산하는 함수
+Future<Map<String, double>> calculateR(String code) async {
+  // 변수 선언
+  List<double> x1 = [];
+  List<double> x2 = [];
+  List<double> y = [];
+  await listSet(x1, "1");
+  await listSet(x2, "2");
+  await listSet(y, code);
+
+  if (x1.length < 3) {
+    return {
+      'rSquared': 999,
+      'tBeta1': 999,
+      'tBeta2': 999,
+      'Beta1': 999,
+      'Beta2': 999
+    };
+  }
+
+  // 독립 변수와 종속 변수의 상관계수 계산
+  double rX1Y = calculateCorrelationCoefficient(x1, y);
+  double rX2Y = calculateCorrelationCoefficient(x2, y);
+  double rX1X2 = calculateCorrelationCoefficient(x1, x2);
+  print("X: $x1, Y: $y, $rX1Y");
+
+  // 표준화 회귀계수 계산
+  double beta1 = (rX1Y - rX2Y * rX1X2) / (1 - pow(rX1X2, 2));
+  double beta2 = (rX2Y - rX1Y * rX1X2) / (1 - pow(rX1X2, 2));
+
+  List<double> yPred = [];
+  for (int i = 0; i < x1.length; i++) {
+    yPred.add(beta1 * x1[i] + beta2 * x2[i]);
+  }
+
+  // R-squared 계산
+  double ssr = 0;
+  double sst = 0;
+  double meanY = y.reduce((a, b) => a + b) / y.length;
+  for (int i = 0; i < y.length; i++) {
+    ssr += pow(y[i] - yPred[i], 2);
+    sst += pow(y[i] - meanY, 2);
+  }
+  double rSquared = 1 - (ssr / sst);
+
+  // t-검정: 다중회귀식
+  double meanX1 = x1.reduce((a, b) => a + b) / x1.length;
+  double seBeta1 = sqrt(ssr / (x1.length - 2)) /
+      sqrt(x1.map((val) => pow(val - meanX1, 2)).reduce((a, b) => a + b));
+  double tBeta1 = beta1 / seBeta1;
+
+  double meanX2 = x2.reduce((a, b) => a + b) / x2.length;
+  double seBeta2 = sqrt(ssr / (x2.length - 2)) /
+      sqrt(x2.map((val) => pow(val - meanX2, 2)).reduce((a, b) => a + b));
+  double tBeta2 = beta2 / seBeta2;
+
+  // t-검정: 상관
+  double tX1Y = rX1Y*sqrt(x1.length-2)/sqrt(1-pow(rX1Y,2));
+  double tX2Y = rX2Y*sqrt(x2.length-2)/sqrt(1-pow(rX2Y,2));
+  double tX1X2 = rX1X2*sqrt(x1.length-2)/sqrt(1-pow(rX1X2,2));
+
+  // 결과를 맵에 담아 리턴
+  return {
+    'rSquared': rSquared,
+    'tBeta1': tBeta1,
+    'tBeta2': tBeta2,
+    'Beta1': beta1,
+    'Beta2': beta2,
+    'rx1y': rX1Y,
+    'rx2y': rX2Y,
+    'rx1x2': rX1X2,
+    'tx1y': tX1Y,
+    'tx2y': tX2Y,
+    'tx1x2': tX1X2
+  };
+}
+
+Future<void> explain() async {
+  Map<String, double> goodResult = await calculateR(goodHabit);
+  Map<String, double> badResult = await calculateR(badHabit);
+
+  String goodname = "";
+  String badname = "";
+
+  if (badHabit == "3") {
+    badname = "스마트폰 과의존";
+  } else if (badHabit == "4") {
+    badname = "SNS 중독 경향성";
+  } else if (badHabit == "5") {
+    badname = "게임 중독";
+  } else if (badHabit == "6") {
+    badname = "유튜브 과의존";
+  } else if (badHabit == "7") {
+    badname = "온라인 쇼핑 중독";
+  }
+
+  if (goodHabit == "8") {
+    goodname = "학습 습관";
+  } else if (goodHabit == "9") {
+    goodname = "운동 습관";
+  } else if (goodHabit == "10") {
+    goodname = "수면 습관";
+  }
+
+  script = "";
+  double? badt1 = badResult['tBeta1'];
+  double? badt2 = badResult['tBeta2'];
+  double? badR2 = badResult['rSquared']! * 100;
+  double? badb1 = badResult['Beta1'];
+  double? badb2 = badResult['Beta2'];
+
+  double? goodt1 = goodResult['tBeta1'];
+  double? goodt2 = goodResult['tBeta2'];
+  double? goodR2 = goodResult['rSquared']! * 100;
+  double? goodb1 = goodResult['Beta1'];
+  double? goodb2 = goodResult['Beta2'];
+
+  double? motivBad = badResult['rx1y'];
+  double? stressBad = badResult['rx2y'];
+  double? motivstress = badResult['rx1x2'];
+  double? motivGood = goodResult['rx1y'];
+  double? stressGood = goodResult['rx2y'];
+//  double? motivStress2 = goodResult['rx1x2'];
+//  print("상관계수 비교해보자 $motivstress, $motivStress2"); 동일함.
+  double? motivbadt = badResult['tx1y'];
+  double? stressbadt = badResult['tx2y'];
+  double? motivgoodt = badResult['tx1x2'];
+  double? stressgoodt = goodResult['tx1y'];
+  double? motivstresst = goodResult['tx1y'];
+//  double? motivgoodt2 = goodResult['tx1x2'];
+//  print("t값 비교해보자 $motivgoodt, $motivgoodt2"); 동일함
+
+  if (goodR2! > 998.0) {
+    print("여기로 오나요?");
+    script = "더 많은 수의 데이터가 필요합니다. 설문을 실시해주세요 ~";
+    return;
+  }
+
+  if (badR2! > 20) {
+    script +=
+        "귀하가 개선하고 싶은 $badname을 동기균형과 스트레스가 $badR2% 설명해주고 있습니다.\n\n하나하나 살펴보도록 하죠\n\n";
+
+    if (badt1! < 2.0) {
+      script +=
+          "$badname에 대한 동기균형의 영향력은 유의미하지 않은 것으로 나타났습니다. 유의미한 관계를 파악하기 위해서는 더 많은 데이터가 필요합니다.\n\n";
+    } else {
+      script += "$badname에 대한 동기균형의 영향력은 유의미한 것으로 나타났습니다.\n\n";
+      if (badb1! > 0) {
+        script +=
+            "동기균형이 높을수록 $badname이 심화되는 것으로 나타납니다. 일반적이지는 않은 경우인데, 증상의 감소를 위해서는 어느 하나의 동기를 충분히 키워 동기균형을 무너뜨릴 필요가 있습니다.\n\n";
+      } else {
+        script +=
+            "동기균형이 낮을수록 $badname이 심화되는 것으로 나타납니다. 위 그래프 칸을 클릭하셔서, 권장되는 활동을 해보시는 것을 추천드립니다.\n\n";
+      }
+    }
+
+    if (badt2! < 2.0) {
+      script +=
+          "$badname에 대한 스트레스의 영향력은 유의미하지 않은 것으로 나타났습니다. 유의미한 관계를 파악하기 위해서는 더 많은 데이터가 필요합니다.\n\n";
+    } else {
+      script += "$badname에 대한 스트레스의 영향력은 유의미한 것으로 나타났습니다.\n\n";
+      if (badb2! > 0) {
+        script +=
+            "스트레스가 높을수록 $badname이 심화되는 것으로 나타납니다. ㅜㅜ 요새 힘드시죠? 좋아하는 일을 하면서 시간을 보내보는건 어떨까요?\n\n";
+      } else {
+        script +=
+            "스트레스가 낮을수록 $badname이 심화되는 것으로 나타납니다. 일반적이지는 않은 경우인데, 편안함을 추구하지 않고 바쁘게 살려고 노력해보면 습관 개선에 도움이 될 수 있습니다.\n\n";
+      }
+    }
+  } else {
+    script +=
+        "귀하의 $badname을 동기균형과 스트레스로 해석하기는 아직 어렵습니다. 동기균형과 스트레스와의 관계를 보고 싶으시다면 더 많은 데이터를 투입해주세요. 적어도 30일분량의 데이터가 권장됩니다.\n\n";
+  }
+
+  if (goodR2 > 20) {
+    script +=
+        "귀하가 개선하고 싶은 $goodname을 동기균형과 스트레스가 $goodR2% 설명해주고 있습니다.\n\n하나하나 살펴봐요\n\n";
+    if (goodt1! < 2.0) {
+      script +=
+          "$goodname에 대한 동기균형의 영향력은 유의미하지 않은 것으로 나타났습니다. 유의미한 관계를 파악하기 위해서는 더 많은 데이터가 필요합니다.\n\n";
+    } else {
+      script += "$goodname에 대한 동기균형의 영향력은 유의미한 것으로 나타났습니다.\n\n";
+      if (goodb1! > 0) {
+        script +=
+            "동기균형이 높을수록 $goodname이 좋아지는 것으로 나타납니다. 좋은 균형감을 유지하기 위해 종종 검사하시고 권장되는 활동을 진행해보세요!.\n\n";
+      } else {
+        script +=
+            "동기균형이 낮을수록 $goodname이 좋아지는 것으로 나타납니다. 일반적이지는 않은데, 내 습관이 좋아질때 어떤 동기를 가지고 있는지 살펴보시고, 그와 잘 어울리는 행동을 통해 동기균형을 낮춰보시는걸 권장드립니다.\n\n";
+      }
+    }
+
+    if (goodt2! < 2.0) {
+      script +=
+          "$goodname에 대한 스트레스의 영향력은 유의미하지 않은 것으로 나타났습니다. 유의미한 관계를 파악하기 위해서는 더 많은 데이터가 필요합니다.";
+    } else {
+      script += "$goodname에 대한 스트레스의 영향력은 유의미한 것으로 나타났습니다.\n\n";
+      if (goodb2! > 0) {
+        script +=
+            "스트레스가 높을수록 $goodname이 좋아지는 것으로 나타납니다. 적당한 수준의 스트레스가 목표하고 있는 일에 도움을 주고 있는 것으로 보입니다.";
+      } else {
+        script +=
+            "스트레스가 낮을수록 $goodname이 좋아지는 것으로 나타납니다. 스트레스가 높아지면 습관이 무너질 수 있으니 조심해요!";
+      }
+    }
+  } else {
+      script +=
+        "귀하의 $goodname을 동기균형과 스트레스로 해석하기는 아직 어렵습니다. 동기균형과 스트레스와의 관계를 보고 싶으시다면 더 많은 데이터를 투입해주세요. 적어도 30일분량의 데이터가 권장됩니다.";
+  }
+
+
+  script += '''\n\n\n통계치는 다음과 같습니다.\n
+  상관계수(pearson's r, t-value) 
+  동기균형과 스트레스: ${motivstress?.toStringAsFixed(3)},${motivstresst?.toStringAsFixed(3)} 
+  동기균형과 $badname: ${motivBad?.toStringAsFixed(3)}, ${motivbadt?.toStringAsFixed(3)}
+  스트레스와 $badname: ${stressBad?.toStringAsFixed(3)}, ${stressbadt?.toStringAsFixed(3)}
+  동기균형과 $goodname: ${motivGood?.toStringAsFixed(3)}, ${motivgoodt?.toStringAsFixed(3)}
+  동기균형과 $goodname: ${stressGood?.toStringAsFixed(3)}, ${stressgoodt?.toStringAsFixed(3)}
+
+  다중회귀모델의 설명력(R-squared*100)[X1: 동기균형, X2: 스트레스, Y: $badname]: ${badR2.toStringAsFixed(3)}%
+  다중회귀모델 내 $badname에 대한 동기균형의 설명력(β): ${badb1?.toStringAsFixed(3)}
+  $badname에 대한 동기균형의 설명력의 유의성(t-value): ${badt1?.toStringAsFixed(3)}
+  다중회귀보델 내 $badname에 대한 스트레스의 설명력(β): ${badb2?.toStringAsFixed(3)}
+  $badname에 대한 스트레스의 설명력의 유의성(t-value): ${badt2?.toStringAsFixed(3)}
+
+  다중회귀모델의 설명력(R-squared*100)[X1: 동기균형, X2: 스트레스, Y: $goodname]: ${goodR2.toStringAsFixed(3)}%
+  다중회귀모델 내 $goodname에 대한 동기균형의 설명력(β): ${goodb1?.toStringAsFixed(3)}
+  $goodname에 대한 동기균형의 설명력의 유의성(t-value): ${goodt1?.toStringAsFixed(3)}
+  다중회귀모델 내 $goodname에 대한 동기균형의 설명력(β): ${goodb1?.toStringAsFixed(3)}
+  $goodname에 대한 스트레스의 설명력의 유의성(t-value): ${goodt2?.toStringAsFixed(3)}
+  
+  
+  t-value 유의성 기준
+  |t|>1.96 이면 p<.05
+  |t|>2.576 이면 p<.01
+  |t|>3.291 이면 p<.001
+  ''';
+  print(script);
+
+  return;
+}
+
+// 상관계수를 계산하는 함수
+double calculateCorrelationCoefficient(List<double> x, List<double> y) {
+  double meanX = x.reduce((a, b) => a + b) / x.length;
+  double meanY = y.reduce((a, b) => a + b) / y.length;
+
+  double covXY = 0;
+  for (int i = 0; i < x.length; i++) {
+    covXY += (x[i] - meanX) * (y[i] - meanY);
+  }
+  covXY /= x.length; // covXY 값을 x.length로 나누어줌
+
+  double stdDevX = sqrt(
+      x.map((val) => pow(val - meanX, 2)).reduce((a, b) => a + b) / x.length);
+  double stdDevY = sqrt(
+      y.map((val) => pow(val - meanY, 2)).reduce((a, b) => a + b) / y.length);
+
+  return covXY / (stdDevX * stdDevY);
+}
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -37,6 +428,8 @@ List<double> radarChartValues4 = [18, 19, 20, 21];
 List<double> radarChartValues5 = [22, 23, 24, 24];
 String badHabit = "";
 String goodHabit = "";
+String script = "";
+final userUid = FirebaseAuth.instance.currentUser!.uid;
 
 class MainPageState extends State<MainPage> {
   double stress = 0;
@@ -44,187 +437,13 @@ class MainPageState extends State<MainPage> {
   double MBscore = 0;
   double badData = 0;
   double goodData = 0;
-  final userUid = FirebaseAuth.instance.currentUser!.uid;
   final firestoreInstance = FirebaseFirestore.instance;
   String MBstate = "";
+
   List<double> badHabitdata = [];
   List<double> goodHabitdata = [];
 //  Map<String, double> coefficients = calculateB(badHabit);
 //  Map<String, double> coefficients = calculateB(goodHabit);
-
-  Future<void> listSet(List<double> list, String code) async {
-    list.clear();
-    QuerySnapshot snapshots = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userUid)
-        .collection(code)
-        .get();
-
-    switch (code) {
-      case '1':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-
-          for (int i = 1; i <= 16; i++) {
-            dataSum += (data['$i'] ?? 0) as int;
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '2':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 10; i++) {
-            if (i == 1 || i == 2 || i == 3 || i == 9 || i == 10) {
-              dataSum += (data['$i'] ?? 0) as int;
-            } else {
-              dataSum += (4 - (data['$i'] ?? 0) as int);
-            }
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '3':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 15; i++) {
-            if (i == 4 || i == 10 || i == 15) {
-              dataSum += (6 - (data['$i'] ?? 0) as int);
-            } else {
-              dataSum += (data['$i'] ?? 0) as int;
-            }
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '4':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 24; i++) {
-            if (i == 9) {
-              dataSum += (5 - (data['$i'] ?? 0) as int);
-            } else {
-              dataSum += (data['$i'] ?? 0) as int;
-            }
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-
-      case '5':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 20; i++) {
-            dataSum += (data['$i'] ?? 0) as int;
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '6':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 22; i++) {
-            dataSum += (data['$i'] ?? 0) as int;
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '7':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 15; i++) {
-            dataSum += (data['$i'] ?? 0) as int;
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '8':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 16; i++) {
-            if (i == 11) {
-              dataSum += (6 - (data['$i'] ?? 0) as int);
-            } else {
-              dataSum += (data['$i'] ?? 0) as int;
-            }
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '9':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 12; i++) {
-            dataSum += (data['$i'] ?? 0) as int;
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      case '10':
-        for (var doc in snapshots.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          double dataSum = 0;
-          for (int i = 1; i <= 10; i++) {
-            dataSum += (data['$i'] ?? 0) as int;
-          }
-          // 리스트에 dataSum 값을 추가
-          list.add(dataSum);
-        }
-      default:
-        return;
-    }
-  }
-
-// 표준화 회귀계수를 계산하는 함수
-  Map<String, double> calculateB(String code) {
-    // 변수 선언
-    List<double> x1 = [];
-    List<double> x2 = [];
-    List<double> y = [];
-    listSet(x1, "1");
-    listSet(x2, "2");
-    listSet(y, code);
-
-    // 독립 변수와 종속 변수의 상관계수 계산
-    double rX1Y = calculateCorrelationCoefficient(x1, y);
-    double rX2Y = calculateCorrelationCoefficient(x2, y);
-    double rX1X2 = calculateCorrelationCoefficient(x1, x2);
-
-    // 표준화 회귀계수 계산
-    double beta1 = (rX1Y - rX2Y * rX1X2) / (1 - pow(rX1X2, 2));
-    double beta2 = (rX2Y - rX1Y * rX1X2) / (1 - pow(rX1X2, 2));
-
-    // 결과를 맵에 담아 리턴
-    return {'beta1': beta1, 'beta2': beta2};
-  }
-
-// 상관계수를 계산하는 함수
-  double calculateCorrelationCoefficient(List<double> x, List<double> y) {
-    double meanX = x.reduce((a, b) => a + b) / x.length;
-    double meanY = y.reduce((a, b) => a + b) / y.length;
-
-    double covXY = 0;
-    for (int i = 0; i < x.length; i++) {
-      covXY += (x[i] - meanX) * (y[i] - meanY);
-    }
-    covXY /= x.length; // covXY 값을 x.length로 나누어줌
-
-    double stdDevX = sqrt(
-        x.map((val) => pow(val - meanX, 2)).reduce((a, b) => a + b) / x.length);
-    double stdDevY = sqrt(
-        y.map((val) => pow(val - meanY, 2)).reduce((a, b) => a + b) / y.length);
-
-    return covXY / (stdDevX * stdDevY);
-  }
 
   Stream<String> getUserNameStream() {
     return firestoreInstance
@@ -256,10 +475,10 @@ class MainPageState extends State<MainPage> {
       'B*C': radarChartValues[2] * radarChartValues[3],
     };
     String result = '''귀하의 기본동기 수준은 다음과 같습니다. (24점 만점에)\n
-자율감: ${radarChartValues[0]}점,
-목표감: ${radarChartValues[1]}점,
-소속감: ${radarChartValues[2]}점,
-유능감: ${radarChartValues[3]}점.\n
+자율감: ${radarChartValues[0].toStringAsFixed(3)}점,
+목표감: ${radarChartValues[1].toStringAsFixed(3)}점,
+소속감: ${radarChartValues[2].toStringAsFixed(3)}점,
+유능감: ${radarChartValues[3].toStringAsFixed(3)}점.\n
 ''';
     // Map에서 가장 작은 값을 가진 키 찾기
     String minCombination = combinations.entries
@@ -334,6 +553,7 @@ class MainPageState extends State<MainPage> {
       MBstate = MBs(radarChartValues);
       badData = badDataValue;
       goodData = goodDataValue;
+      explain();
     });
   }
 
@@ -568,9 +788,7 @@ class MainPageState extends State<MainPage> {
   int box = 25;
   late double autonomy_data, pursuing_data, belonging_data, competence_data;
 
-  /**
-   * 메인 UI 파트
-   */
+  /// 메인 UI 파트
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -851,6 +1069,7 @@ class MainPageState extends State<MainPage> {
                 competence_data = competence_data / length;
                 belonging_data = belonging_data / length;
                 pursuing_data = pursuing_data / length;
+                // ignore: avoid_print
                 print(
                     "!!! -> ($autonomy_data, $competence_data), ($belonging_data, $pursuing_data)");
                 radarChartValues = [
@@ -990,6 +1209,7 @@ class MainPageState extends State<MainPage> {
                                     }
                                   }
                                   int length = docs!.length;
+                                  // ignore: avoid_print
                                   print(
                                       "stress : $stress / $length = ${(stress / length).toStringAsFixed(0)}");
                                   stress = double.parse(
@@ -1081,7 +1301,7 @@ class MainPageState extends State<MainPage> {
                                 margin:
                                     const EdgeInsets.fromLTRB(15, 10, 15, 15),
                                 child:
-                                    Text("귀하의 동기균형 점수는 100점 만점에 $MBscore 입니다."),
+                                    Text("귀하의 동기균형 점수는 100점 만점에 ${MBscore.toStringAsFixed(3)} 입니다."),
                               ),
                               Container(
                                 margin:
@@ -1214,13 +1434,9 @@ class _LineChartState extends State<_LineChart> {
     return GestureDetector(
       onTap: () {
         setState(() {
+          explain();
           isFliped = !isFliped;
         });
-        if (isFliped) {
-          print("뒷면입니다.");
-        } else {
-          print("앞면입니다.");
-        }
       },
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 1500),
@@ -1429,13 +1645,13 @@ class _LineChartState extends State<_LineChart> {
       children: [
         Expanded(
           child: Scrollbar(
-            thumbVisibility : true,
+            thumbVisibility: true,
             controller: Controller,
             scrollbarOrientation: ScrollbarOrientation.right,
             radius: const Radius.circular(20),
-            child: const SingleChildScrollView(
-              child: Text("ㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ너이ㅏ로마ㅣㄴㅇ러ㅣ만어랴벚디ㅑㄱ;ㅜㄹ멍ㄹㅊㅋ투챠;ㅐㅂ쟏ㄱ라ㅓㅇ누.,ㅡㅁ.ㅜㅡ,ㅊㅌㅁ;ㅐㅑㅑㄷ쟈ㅕㅂㄱ저르,ㅁㅇㄴ.ㅡㅜㅑㅐㅊㅌ;ㅓㅜㅈ득ㄹ,.ㅁㄹㄴㅇ.ㅡ,ㅜ채ㅑ;ㄷ노불,ㅡ.ㅇ무,ㅡㅗㅁㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣㅁ;ㅇㄴ리ㅏㅓㅁㄴ아러ㅏ;ㅣㅁㄴ어ㅗㄹ;ㅗ미ㅏㄴㅇ러;ㅣㅏㅁ너아ㅣ럼ㅇㄴ;ㅇ러ㅏㅣ"),
-              
+            child: SingleChildScrollView(
+              controller: Controller,
+              child: Text(script),
             ),
           ),
         ),
@@ -1474,8 +1690,8 @@ Future<List<FlSpot>> chartList(List<double> list, String code) async {
 }
 
 class AppBar extends StatelessWidget implements PreferredSizeWidget {
-  BuildContext context;
-  MainPageState mainPageState = MainPageState();
+  final BuildContext context;
+  final MainPageState mainPageState = MainPageState();
 
   AppBar(this.context, {super.key});
 
@@ -1538,8 +1754,9 @@ class AppBar extends StatelessWidget implements PreferredSizeWidget {
 
                 } else */
                 if (snapshot.hasError) {
+                  // ignore: avoid_print
                   print("snapshot has error");
-                  return Text('정보를 받아오는 중입니다.');
+                  return const Text('정보를 받아오는 중입니다.');
                 } else {
                   String? truncatedName = snapshot.data!.length > 4
                       ? '${snapshot.data?.substring(0, 3)}...'
